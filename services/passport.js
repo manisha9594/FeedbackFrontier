@@ -25,20 +25,15 @@ passport.use(
    proxy: true
 },
 
-(accessToken, refreshToken, profile, done) => {
-   User.findOne({ googleId: profile.id })
-   .then(existingUser => {
+async (accessToken, refreshToken, profile, done) => {
+ const existingUser =  await User.findOne({ googleId: profile.id })
        if (existingUser) {  
            // User already exists, proceed with the existing user
-           return done(null, existingUser);
+            done(null, existingUser);
+       } else {
+      const user =  await new User({ googleId: profile.id }).save()
+        done(null,user)
        }
-       // If new user
-       new User({ googleId: profile.id })
-           .save()
-           .then(user => done(null, user))
-           .catch(err => done(err));
-   })
-   .catch(err => done(err));
-}
+   }
 ),
 );
